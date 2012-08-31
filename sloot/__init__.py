@@ -4,7 +4,6 @@
 """
 """
 
-from obj_utils import myobject
+__import__('pkg_resources').declare_namespace(__name__)
 
 #EOF
-
