@@ -4,9 +4,7 @@
 """
 """
 
-__import__('pkg_resources').declare_namespace(__name__)
-
-from obj_utils import myobject
+from obj_utils import myobject, dictobj
 
 #EOF
 

@@ -15,4 +15,48 @@ class myobject(object):
             setattr(self, k, v)
 
 
+class dictobj(dict):
+    """Dictionary exposing its values over properties
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Initializing
+        """
+        self.changed_values = {}
+        self.__initialized = True
+
+        for arg in args:
+            if not isinstance(arg, dict):
+                arg = dict(arg)
+            self.update(arg)
+
+        self.update(kwargs)
+
+    def __setitem__(self, key, value):
+        """Setting items the dict way...
+        """
+        self.changed_values[key] = value
+        super(dictobj, self).__setitem__(key, value)
+
+    def __getattr__(self, item):
+        """Maps values to attributes.
+        Only called if there *isn't* an attribute with this name
+        """
+        try:
+            return self.__getitem__(item)
+        except KeyError:
+            raise AttributeError(item)
+
+    def __setattr__(self, item, value):
+        """Maps attributes to values.
+        Only if we are initialised
+        """
+        if not self.__dict__.has_key('_dictobj__initialized'):  # this test allows attributes to be set in the __init__ method
+            return dict.__setattr__(self, item, value)
+        elif self.__dict__.has_key(item):       # any normal attributes are handled normally
+            dict.__setattr__(self, item, value)
+        else:
+            self.__setitem__(item, value)
+
+
 #EOF
