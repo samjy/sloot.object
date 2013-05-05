@@ -25,12 +25,18 @@ class dictobj(dict):
         self.changed_values = {}
         self.__initialized = True
 
+        dicts = []
         for arg in args:
             if not isinstance(arg, dict):
                 arg = dict(arg)
-            self.update(arg)
+            dicts.append(arg)
 
-        self.update(kwargs)
+        dicts.append(kwargs)
+        for dic in dicts:
+            for k, v in dic.items():
+                if isinstance(v, dict):
+                    v = dictobj(v)
+                self[k] = v
 
     def __setitem__(self, key, value):
         """Setting items the dict way...

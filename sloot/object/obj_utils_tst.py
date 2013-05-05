@@ -47,6 +47,9 @@ class TestDictobj(unittest.TestCase):
         assert d.test == 'another'
         assert d['items'] == 1
 
+        print dict(d)
+        print getattr(d, 'b3')
+
 
 if __name__ == '__main__':
     unittest.main()
