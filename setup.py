@@ -11,7 +11,7 @@ setup(
     version="0.1",
     packages=find_packages(),
     namespace_packages=['sloot',],
-    install_requires=['nose',],
+    install_requires=['sloot', 'nose',],
     include_package_data=True,
     package_data={'': ['doc/*.rst'],},
     platforms='any',
