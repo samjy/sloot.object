@@ -22,8 +22,8 @@ class dictobj(dict):
     def __init__(self, *args, **kwargs):
         """Initializing
         """
-        self.changed_values = {}
-        self.__initialized = True
+        self._changed_values = {}
+        self._initialized = True
 
         dicts = []
         for arg in args:
@@ -41,7 +41,7 @@ class dictobj(dict):
     def __setitem__(self, key, value):
         """Setting items the dict way...
         """
-        self.changed_values[key] = value
+        self._changed_values[key] = value
         super(dictobj, self).__setitem__(key, value)
 
     def __getattr__(self, item):
@@ -57,9 +57,11 @@ class dictobj(dict):
         """Maps attributes to values.
         Only if we are initialised
         """
-        if not self.__dict__.has_key('_dictobj__initialized'):  # this test allows attributes to be set in the __init__ method
+        if not self.__dict__.has_key('_initialized'):
+            # this test allows attributes to be set in the __init__ method
             return dict.__setattr__(self, item, value)
-        elif self.__dict__.has_key(item):       # any normal attributes are handled normally
+        elif self.__dict__.has_key(item):
+            # any normal attributes are handled normally
             dict.__setattr__(self, item, value)
         else:
             self.__setitem__(item, value)

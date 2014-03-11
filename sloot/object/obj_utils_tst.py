@@ -50,6 +50,29 @@ class TestDictobj(unittest.TestCase):
         print dict(d)
         print getattr(d, 'b3')
 
+    def test_inherit(self):
+        """Testing inheritance
+        """
+        class T(dictobj):
+            def foo(self):
+                return "hello"
+
+            @property
+            def bar(self):
+                return "world"
+
+        t = T({'a': 1, 'b':2})
+        print dir(t)
+
+        assert t.foo() == "hello"
+        assert t.bar == "world"
+
+        t['test'] = "mytest"
+        assert t.test == "mytest"
+        assert t.bar == "world"
+
+        print t.__dict__
+
 
 if __name__ == '__main__':
     unittest.main()
