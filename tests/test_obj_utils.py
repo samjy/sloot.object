@@ -5,8 +5,8 @@
 """
 
 import unittest
-import obj_utils
-from obj_utils import dictobj
+import sloot.object.obj_utils as obj_utils
+from sloot.object import dictobj
 
 
 class TestMyobject(unittest.TestCase):

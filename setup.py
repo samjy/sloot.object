@@ -5,10 +5,11 @@
 """
 
 from setuptools import setup, find_packages
+from sloot.object import __VERSION__
 
 setup(
     name="sloot.object",
-    version="0.1",
+    version=__VERSION__,
     packages=find_packages(),
     namespace_packages=['sloot',],
     install_requires=['nose', 'coverage'],
