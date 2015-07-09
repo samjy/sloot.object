@@ -51,7 +51,7 @@ class dictobj(dict):
         try:
             return self.__getitem__(item)
         except KeyError:
-            raise AttributeError(item)
+            raise AttributeError("%s not found in %s" % (item, self.__class__.__name__))
 
     def __setattr__(self, item, value):
         """Maps attributes to values.
@@ -65,6 +65,17 @@ class dictobj(dict):
             dict.__setattr__(self, item, value)
         else:
             self.__setitem__(item, value)
+
+
+class SimpleMultiDict(dict):
+    """Multi dict (a key can have multiple values)
+    """
+
+    def getlist(self, key):
+        return self[key] if type(self[key]) == list else [self[key]]
+
+    def __repr__(self):
+        return type(self).__name__ + '(' + dict.__repr__(self) + ')'
 
 
 #EOF
