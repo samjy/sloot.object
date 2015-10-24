@@ -7,6 +7,7 @@
 import unittest
 import sloot.object.obj_utils as obj_utils
 from sloot.object import dictobj
+import collections
 
 
 class TestMyobject(unittest.TestCase):
@@ -32,10 +33,11 @@ class TestDictobj(unittest.TestCase):
         assert str(d) == '{}'
         d.test = 'test'
         d.items = 'items'
-        assert d.items() == [('test', 'test'), ('items', 'items')]
+        self.assertEqual(list(d.items()),
+                         [('test', 'test'), ('items', 'items')])
 
         assert d['items'] == 'items'
-        assert callable(d.items)
+        assert isinstance(d.items, collections.Callable)
 
         d = dictobj({'test': 'newtest', 'items': 'theitems'})
         assert 'test' in d
@@ -47,8 +49,8 @@ class TestDictobj(unittest.TestCase):
         assert d.test == 'another'
         assert d['items'] == 1
 
-        print dict(d)
-        print getattr(d, 'b3')
+        print(dict(d))
+        print(getattr(d, 'b3'))
 
     def test_inherit(self):
         """Testing inheritance
@@ -62,7 +64,7 @@ class TestDictobj(unittest.TestCase):
                 return "world"
 
         t = T({'a': 1, 'b':2})
-        print dir(t)
+        print(dir(t))
 
         assert t.foo() == "hello"
         assert t.bar == "world"
@@ -71,7 +73,7 @@ class TestDictobj(unittest.TestCase):
         assert t.test == "mytest"
         assert t.bar == "world"
 
-        print t.__dict__
+        print(t.__dict__)
 
 
 if __name__ == '__main__':

@@ -4,9 +4,9 @@
 """
 """
 
-from obj_utils import myobject, dictobj, SimpleMultiDict
+from .obj_utils import myobject, dictobj, SimpleMultiDict
 __import__('pkg_resources').declare_namespace(__name__)
-__VERSION__ = "0.1.2"
+__VERSION__ = "1.0.0"
 
 #EOF
 

@@ -11,7 +11,7 @@ class myobject(object):
     def __init__(self, *args, **kwargs):
         """
         """
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
 
@@ -33,7 +33,7 @@ class dictobj(dict):
 
         dicts.append(kwargs)
         for dic in dicts:
-            for k, v in dic.items():
+            for k, v in list(dic.items()):
                 if isinstance(v, dict):
                     v = dictobj(v)
                 self[k] = v
@@ -57,10 +57,10 @@ class dictobj(dict):
         """Maps attributes to values.
         Only if we are initialised
         """
-        if not self.__dict__.has_key('_initialized'):
+        if '_initialized' not in self.__dict__:
             # this test allows attributes to be set in the __init__ method
             return dict.__setattr__(self, item, value)
-        elif self.__dict__.has_key(item):
+        elif item in self.__dict__:
             # any normal attributes are handled normally
             dict.__setattr__(self, item, value)
         else:
