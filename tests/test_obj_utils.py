@@ -33,8 +33,8 @@ class TestDictobj(unittest.TestCase):
         assert str(d) == '{}'
         d.test = 'test'
         d.items = 'items'
-        self.assertEqual(list(d.items()),
-                         [('test', 'test'), ('items', 'items')])
+        self.assertEqual(sorted(d.items()),
+                         [('items', 'items'), ('test', 'test')])
 
         assert d['items'] == 'items'
         assert isinstance(d.items, collections.Callable)
