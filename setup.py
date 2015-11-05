@@ -12,7 +12,7 @@ setup(
     version=__VERSION__,
     packages=find_packages(),
     namespace_packages=['sloot',],
-    install_requires=['nose', 'coverage'],
+    install_requires=[],
     include_package_data=True,
     package_data={'': ['doc/*.rst'],},
     platforms='any',
