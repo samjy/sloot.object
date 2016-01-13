@@ -22,6 +22,7 @@ class dictobj(dict):
     def __init__(self, *args, **kwargs):
         """Initializing
         """
+        self._initialized = False
         dicts = []
         for arg in args:
             if not isinstance(arg, dict):
@@ -43,7 +44,7 @@ class dictobj(dict):
     def __setitem__(self, key, value):
         """Setting items the dict way...
         """
-        if hasattr(self, '_initialized'):
+        if self._initialized:
             self._deleted_keys.discard(key)
             self._changed_values[key] = value
 
@@ -52,7 +53,7 @@ class dictobj(dict):
     def __delitem__(self, name):
         """Delete a dict key
         """
-        if hasattr(self, '_initialized'):
+        if self._initialized:
             self._deleted_keys.add(name)
             if name in self._changed_values:
                 del self._changed_values[name]
@@ -62,7 +63,7 @@ class dictobj(dict):
     def update(self, *args, **kwargs):
         """Update the dict
         """
-        if hasattr(self, '_initialized'):
+        if self._initialized:
             self._changed_values.update(*args, **kwargs)
             self._deleted_keys -= set(self._changed_values.keys())
 
@@ -73,7 +74,7 @@ class dictobj(dict):
         """
         willchange = key not in self
         ret = super(dictobj, self).setdefault(key, default)
-        if hasattr(self, '_initialized'):
+        if self._initialized:
             if willchange:
                 self._changed_values[key] = ret
 
@@ -82,7 +83,7 @@ class dictobj(dict):
     def clear(self):
         """Clear
         """
-        if hasattr(self, '_initialized'):
+        if self._initialized:
             self._changed_values.clear()
             self._deleted_keys |= set(self.keys())
 
@@ -122,7 +123,7 @@ class dictobj(dict):
         NOTE: to avoid issues, we don't allow to setattr on class attributes
               (e.g. to avoid modifying dict.items function)
         """
-        if '_initialized' not in self.__dict__:
+        if '_initialized' not in self.__dict__ or not self._initialized:
             # this test allows attributes to be set in the __init__ method
             return dict.__setattr__(self, item, value)
         elif item in self.__dict__:

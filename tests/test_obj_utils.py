@@ -357,7 +357,7 @@ class TestSimpleMultiDict(unittest.TestCase):
         d = SimpleMultiDict({'a': ['a', 'aa', 'aaa'], 'b': 'b'})
         self.assertEqual(
             repr(d),
-            "SimpleMultiDict({'a': ['a', 'aa', 'aaa'], 'b': 'b'})")
+            "SimpleMultiDict(%s)" % repr(dict(d)))
 
 
 if __name__ == '__main__':
