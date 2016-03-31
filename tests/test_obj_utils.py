@@ -58,6 +58,12 @@ class TestDictobj(unittest.TestCase):
         orig['orig'] = orig
         self.assertRaises(RuntimeError, dictobj, orig)
 
+    def test___repr__(self):
+        """Testing __repr__
+        """
+        t = dictobj({'a': 1, 'b': 'b'})
+        self.assertEqual(repr(t), "dictobj({'a': 1, 'b': 'b'})")
+
     def test___setitem__(self):
         """Testing __setitem__
         """
@@ -320,7 +326,7 @@ class TestDictobj(unittest.TestCase):
         """Testing dictobj
         """
         d = dictobj()
-        assert str(d) == '{}'
+        assert str(d) == 'dictobj({})'
         d.test = 'test'
         d.items = 'items'
         self.assertEqual(sorted(d.items()),

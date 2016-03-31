@@ -41,6 +41,12 @@ class dictobj(dict):
         self._deleted_keys = set()
         self._initialized = True
 
+    def __repr__(self):
+        """Representing dictobj
+        """
+        return "%s(%s)" % (self.__class__.__name__,
+                             dict.__repr__(self))
+
     def __setitem__(self, key, value):
         """Setting items the dict way...
         """
@@ -123,15 +129,19 @@ class dictobj(dict):
         NOTE: to avoid issues, we don't allow to setattr on class attributes
               (e.g. to avoid modifying dict.items function)
         """
-        if '_initialized' not in self.__dict__ or not self._initialized:
-            # this test allows attributes to be set in the __init__ method
-            return dict.__setattr__(self, item, value)
-        elif item in self.__dict__:
-            # any normal attributes are handled normally
-            return dict.__setattr__(self, item, value)
-        elif isinstance(getattr(self.__class__, item, None), property):
-            # this allows properties to behave properly
-            return dict.__setattr__(self, item, value)
+        try:
+            if '_initialized' not in self.__dict__ or not self._initialized:
+                # this test allows attributes to be set in the __init__ method
+                return dict.__setattr__(self, item, value)
+            elif item in self.__dict__:
+                # any normal attributes are handled normally
+                return dict.__setattr__(self, item, value)
+            elif isinstance(getattr(self.__class__, item, None), property):
+                # this allows properties to behave properly
+                return dict.__setattr__(self, item, value)
+        except AttributeError:
+            raise AttributeError("Can't set attribute '%s' of %r" % (
+                item, self))
 
         return self.__setitem__(item, value)
 
