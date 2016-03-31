@@ -62,7 +62,7 @@ class TestDictobj(unittest.TestCase):
         """Testing __repr__
         """
         t = dictobj({'a': 1, 'b': 'b'})
-        self.assertEqual(repr(t), "dictobj({'a': 1, 'b': 'b'})")
+        self.assertEqual(repr(t), "dictobj(%s)" % dict.__repr__(t))
 
     def test___setitem__(self):
         """Testing __setitem__
