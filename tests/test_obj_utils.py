@@ -260,6 +260,37 @@ class TestDictobj(unittest.TestCase):
         self.assertEqual(t, {'a': 'a'})
         self.assertEqual(t.a, "class a")
 
+    def test___settr__property(self):
+        """Testing __setattr__ for property
+        """
+        class T(dictobj):
+
+            @property
+            def my_prop(self):
+                return 'my_prop'
+
+            @my_prop.setter
+            def my_prop(self, value):
+                self.some_key = value
+
+        t = T({'a': 'a'})
+
+        # getter
+        self.assertEqual(t.my_prop, 'my_prop')
+        # property takes precedence
+        t['my_prop'] = 'some other value'
+        self.assertEqual(t.my_prop, 'my_prop')
+
+        # setter
+        self.assertTrue('some_key' not in t)
+        t.my_prop = 'setting my_prop'
+        # property is still there
+        self.assertEqual(t.my_prop, 'my_prop')
+        # dict value is unchanged
+        self.assertEqual(t['my_prop'], 'some other value')
+        # the setter ran properly
+        self.assertEqual(t.some_key, 'setting my_prop')
+
     def test___delattr__(self):
         """Testing __delattr__
         """

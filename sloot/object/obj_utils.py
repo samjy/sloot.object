@@ -129,6 +129,9 @@ class dictobj(dict):
         elif item in self.__dict__:
             # any normal attributes are handled normally
             return dict.__setattr__(self, item, value)
+        elif isinstance(getattr(self.__class__, item, None), property):
+            # this allows properties to behave properly
+            return dict.__setattr__(self, item, value)
 
         return self.__setitem__(item, value)
 
