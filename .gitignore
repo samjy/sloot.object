@@ -1,0 +1,6 @@
+.tox
+.coverage
+coverage.xml
+nosetests.xml
+*.egg-info/
+
