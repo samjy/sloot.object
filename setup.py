@@ -19,10 +19,18 @@ setup(
     test_suite=None,
     author="Samuel Jaillet",
     author_email="sam+dev@samjy.com",
-    description="object utils",
-    license="MIT?",
-    keywords="tools object utils",
-    url="http://samjy.com",
+    description="Object utils to make life easier",
+    license="MIT",
+    keywords=['tools', 'object', 'utils', 'dict'],
+    url="https://github.com/samjy/sloot.object",
+    download_url="https://github.com/samjy/sloot.object/tarball/%s" % __VERSION__,
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'License :: Freely Distributable',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Topic :: Software Development',
+    ],
 )
 
 #EOF

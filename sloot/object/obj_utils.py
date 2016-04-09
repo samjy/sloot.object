@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-"""
 
 class myobject(object):
-    """
+    """Initialize object attributes using kwargs
     """
 
     def __init__(self, *args, **kwargs):
-        """
+        """Initialize
         """
         for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
 
 class dictobj(dict):
-    """Dictionary exposing its values over properties
+    """Dictionary exposing its values over attributes
     """
 
     def __init__(self, *args, **kwargs):
         """Initializing
+
+        Works like :py:class:`dict`'s initialization
         """
         self._initialized = False
         dicts = []
@@ -127,7 +127,7 @@ class dictobj(dict):
         Only if we are initialised
 
         NOTE: to avoid issues, we don't allow to setattr on class attributes
-              (e.g. to avoid modifying dict.items function)
+            (e.g. to avoid modifying dict.items function)
         """
         try:
             if '_initialized' not in self.__dict__ or not self._initialized:
