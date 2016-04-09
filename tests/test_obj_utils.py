@@ -391,7 +391,7 @@ class TestSimpleMultiDict(unittest.TestCase):
     def test___repr__(self):
         """Testing __repr__
         """
-        orig = {'a': ['a', 'aa', 'aaa'], 'b': 'b'}
+        orig = {'a': 'a'}
         d = SimpleMultiDict(orig)
         self.assertEqual(
             repr(d),
