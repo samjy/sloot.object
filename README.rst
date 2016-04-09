@@ -3,6 +3,7 @@ sloot.object - Object tools
 ***************************
 
 .. image:: https://travis-ci.org/samjy/sloot.object.svg?branch=master
+   :target: https://travis-ci.org/samjy/sloot.object
 
 
 Basic usage
