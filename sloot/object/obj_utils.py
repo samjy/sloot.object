@@ -23,14 +23,11 @@ class dictobj(dict):
         Works like :py:class:`dict`'s initialization
         """
         self._initialized = False
-        dicts = []
-        for arg in args:
+        for arg in args + (kwargs,):
+            dic = arg
             if not isinstance(arg, dict):
-                arg = dict(arg)
-            dicts.append(arg)
+                dic = dict(arg)
 
-        dicts.append(kwargs)
-        for dic in dicts:
             for k, v in list(dic.items()):
                 if isinstance(v, dict):
                     v = dictobj(v)
@@ -44,8 +41,7 @@ class dictobj(dict):
     def __repr__(self):
         """Representing dictobj
         """
-        return "%s(%s)" % (self.__class__.__name__,
-                             dict.__repr__(self))
+        return "%s(%s)" % (self.__class__.__name__, dict.__repr__(self))
 
     def __setitem__(self, key, value):
         """Setting items the dict way...
