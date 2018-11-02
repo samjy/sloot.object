@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
+_not_given = object()
+
+
 class myobject(object):
     """Initialize object attributes using kwargs
     """
@@ -46,29 +49,19 @@ class dictobj(dict):
     def __setitem__(self, key, value):
         """Setting items the dict way...
         """
-        if self._initialized:
-            self._deleted_keys.discard(key)
-            self._changed_values[key] = value
-
+        self._updated_keys({key: value})
         super(dictobj, self).__setitem__(key, value)
 
     def __delitem__(self, name):
         """Delete a dict key
         """
-        if self._initialized:
-            self._deleted_keys.add(name)
-            if name in self._changed_values:
-                del self._changed_values[name]
-
+        self._removed_key(name)
         super(dictobj, self).__delitem__(name)
 
     def update(self, *args, **kwargs):
         """Update the dict
         """
-        if self._initialized:
-            self._changed_values.update(*args, **kwargs)
-            self._deleted_keys -= set(self._changed_values.keys())
-
+        self._updated_keys(*args, **kwargs)
         return super(dictobj, self).update(*args, **kwargs)
 
     def setdefault(self, key, default=None):
@@ -76,19 +69,60 @@ class dictobj(dict):
         """
         willchange = key not in self
         ret = super(dictobj, self).setdefault(key, default)
-        if self._initialized:
-            if willchange:
-                self._changed_values[key] = ret
+        if willchange:
+            self._updated_keys({key: ret})
 
         return ret
+
+    def pop(self, key, default=_not_given):
+        """Pop element
+        """
+        if key in self:
+            self._removed_key(key)
+
+        if default is _not_given:
+            return super(dictobj, self).pop(key)
+
+        return super(dictobj, self).pop(key, default)
+
+    def popitem(self):
+        """Popitem
+        """
+        k, v = super(dictobj, self).popitem()
+        self._removed_key(k)
+        return k, v
+
+    def _updated_keys(self, *args, **kwargs):
+        """Track keys that get updated
+        """
+        # TODO we need to find a way to detect updates when item is a reference
+        # (e.g. a dict or list) and this reference gets updated
+        # TODO maybe it's easier to store a 'checkpoint' and do a dictdiff on
+        # this...
+        if self._initialized:
+            changed = {}
+            changed.update(*args, **kwargs)
+            self._changed_values.update(changed)
+            self._deleted_keys -= set(changed.keys())
+
+    def _removed_key(self, key):
+        """Track keys that get removed
+        """
+        if self._initialized:
+            self._changed_values.pop(key, None)
+            self._deleted_keys.add(key)
+
+    def _clear_changes_tracking(self):
+        """Clear changes tracking
+        """
+        if self._initialized:
+            self._changed_values.clear()
+            self._deleted_keys = set()
 
     def clear(self):
         """Clear
         """
-        if self._initialized:
-            self._changed_values.clear()
-            self._deleted_keys |= set(self.keys())
-
+        self._clear_changes_tracking()
         return super(dictobj, self).clear()
 
     def __getattribute__(self, name):
@@ -136,7 +170,7 @@ class dictobj(dict):
                 # this allows properties to behave properly
                 return dict.__setattr__(self, item, value)
         except AttributeError:
-            raise AttributeError("Can't set attribute '%s' of %r" % (
+            raise AttributeError(u"Can't set attribute '%s' of %r" % (
                 item, self))
 
         return self.__setitem__(item, value)
