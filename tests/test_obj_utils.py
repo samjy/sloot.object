@@ -152,7 +152,6 @@ class TestDictobj(unittest.TestCase):
                 # something here raises an attribute error
                 return self.c
 
-
         t = T(a='a')
 
         self.assertEqual(t.a, 'a')
@@ -166,6 +165,7 @@ class TestDictobj(unittest.TestCase):
         raised = False
         try:
             x = t.h
+            assert 0, "shouldn't be reached, but was, with x = %r" % x
         except AttributeError:
             raised = True
             stk = traceback.extract_tb(sys.exc_info()[2])
@@ -361,7 +361,7 @@ class TestDictobj(unittest.TestCase):
             def bar(self):
                 return "world"
 
-        t = T({'a': 1, 'b':2})
+        t = T({'a': 1, 'b': 2})
         print(dir(t))
 
         assert t.foo() == "hello"
