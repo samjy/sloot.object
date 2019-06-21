@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+try:
+    from collections.abc import MutableMapping, Mapping
+except ImportError:
+    from collections import MutableMapping, Mapping
+
+
 _not_given = object()
 
 
@@ -16,7 +22,7 @@ class myobject(object):
             setattr(self, k, v)
 
 
-class dictobj(dict):
+class dictobj(MutableMapping):
     """Dictionary exposing its values over attributes
     """
 
@@ -25,15 +31,16 @@ class dictobj(dict):
 
         Works like :py:class:`dict`'s initialization
         """
-        self._initialized = False
+        self.__data = {}
+
         for arg in args + (kwargs,):
             dic = arg
-            if not isinstance(arg, dict):
+            if not isinstance(arg, Mapping):
                 dic = dict(arg)
 
             for k, v in list(dic.items()):
-                if isinstance(v, dict):
-                    v = dictobj(v)
+                if isinstance(v, Mapping):
+                    v = self.__class__(v)
 
                 self[k] = v
 
@@ -44,53 +51,7 @@ class dictobj(dict):
     def __repr__(self):
         """Representing dictobj
         """
-        return "%s(%s)" % (self.__class__.__name__, dict.__repr__(self))
-
-    def __setitem__(self, key, value):
-        """Setting items the dict way...
-        """
-        self._updated_keys({key: value})
-        super(dictobj, self).__setitem__(key, value)
-
-    def __delitem__(self, name):
-        """Delete a dict key
-        """
-        self._removed_key(name)
-        super(dictobj, self).__delitem__(name)
-
-    def update(self, *args, **kwargs):
-        """Update the dict
-        """
-        self._updated_keys(*args, **kwargs)
-        return super(dictobj, self).update(*args, **kwargs)
-
-    def setdefault(self, key, default=None):
-        """Set default
-        """
-        willchange = key not in self
-        ret = super(dictobj, self).setdefault(key, default)
-        if willchange:
-            self._updated_keys({key: ret})
-
-        return ret
-
-    def pop(self, key, default=_not_given):
-        """Pop element
-        """
-        if key in self:
-            self._removed_key(key)
-
-        if default is _not_given:
-            return super(dictobj, self).pop(key)
-
-        return super(dictobj, self).pop(key, default)
-
-    def popitem(self):
-        """Popitem
-        """
-        k, v = super(dictobj, self).popitem()
-        self._removed_key(k)
-        return k, v
+        return "%s(%s)" % (self.__class__.__name__, repr(self.__data))
 
     def _updated_keys(self, *args, **kwargs):
         """Track keys that get updated
@@ -99,7 +60,7 @@ class dictobj(dict):
         # (e.g. a dict or list) and this reference gets updated
         # TODO maybe it's easier to store a 'checkpoint' and do a dictdiff on
         # this...
-        if self._initialized:
+        if '_initialized' in self.__dict__:
             changed = {}
             changed.update(*args, **kwargs)
             self._changed_values.update(changed)
@@ -108,14 +69,14 @@ class dictobj(dict):
     def _removed_key(self, key):
         """Track keys that get removed
         """
-        if self._initialized:
+        if '_initialized' in self.__dict__:
             self._changed_values.pop(key, None)
             self._deleted_keys.add(key)
 
     def _clear_changes_tracking(self):
         """Clear changes tracking
         """
-        if self._initialized:
+        if '_initialized' in self.__dict__:
             self._changed_values.clear()
             self._deleted_keys = set()
 
@@ -124,6 +85,23 @@ class dictobj(dict):
         """
         self._clear_changes_tracking()
         return super(dictobj, self).clear()
+
+    def __getitem__(self, key):
+        return self.__data[key]
+
+    def __setitem__(self, key, value):
+        self._updated_keys({key: value})
+        self.__data[key] = value
+
+    def __delitem__(self, key):
+        self._removed_key(key)
+        del self.__data[key]
+
+    def __iter__(self):
+        return iter(self.__data)
+
+    def __len__(self):
+        return len(self.__data)
 
     def __getattribute__(self, name):
         """Get attribute
@@ -136,17 +114,17 @@ class dictobj(dict):
         :returns: The attribute
         :raises: (AttributeError) If not there
         """
-        dct = dict.__getattribute__(self, '__dict__')
-        cls = dict.__getattribute__(self, '__class__')
+        dct = object.__getattribute__(self, '__dict__')
+        cls = object.__getattribute__(self, '__class__')
         if name in dct or hasattr(cls, name) or '_initialized' not in dct:
             # try to get the standard attribute (method, variable, etc) if it's
             # present on the class or we're not initialized
-            return dict.__getattribute__(self, name)
+            return object.__getattribute__(self, name)
         else:
             # when trying to get an unknown attribute, get it from the dict
             try:
-                return self[name]
-            except:
+                return self.__getitem__(name)
+            except Exception:
                 # we didn't find the attribute
                 pass
 
@@ -160,15 +138,15 @@ class dictobj(dict):
             (e.g. to avoid modifying dict.items function)
         """
         try:
-            if '_initialized' not in self.__dict__ or not self._initialized:
+            if '_initialized' not in self.__dict__:
                 # this test allows attributes to be set in the __init__ method
-                return dict.__setattr__(self, item, value)
+                return object.__setattr__(self, item, value)
             elif item in self.__dict__:
                 # any normal attributes are handled normally
-                return dict.__setattr__(self, item, value)
+                return object.__setattr__(self, item, value)
             elif isinstance(getattr(self.__class__, item, None), property):
                 # this allows properties to behave properly
-                return dict.__setattr__(self, item, value)
+                return object.__setattr__(self, item, value)
         except AttributeError:
             raise AttributeError(u"Can't set attribute '%s' of %r" % (
                 item, self))
@@ -180,7 +158,7 @@ class dictobj(dict):
         """
         if name in self.__dict__ or hasattr(self.__class__, name):
             # any normal attributes are handled normally
-            return dict.__delattr__(self, name)
+            return object.__delattr__(self, name)
 
         return self.__delitem__(name)
 
