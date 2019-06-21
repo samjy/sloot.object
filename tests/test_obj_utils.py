@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-"""
-
 import sys
 import unittest
 import traceback
 import sloot.object.obj_utils as obj_utils
 from sloot.object import dictobj, SimpleMultiDict
-import collections
+try:
+    import collections.abc as collections
+except ImportError:
+    import collections
 
 
 class TestMyobject(unittest.TestCase):

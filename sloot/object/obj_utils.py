@@ -40,7 +40,7 @@ class dictobj(MutableMapping):
 
             for k, v in list(dic.items()):
                 if isinstance(v, Mapping):
-                    v = self.__class__(v)
+                    v = dictobj(v)
 
                 self[k] = v
 

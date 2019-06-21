@@ -13,8 +13,8 @@ Basic usage
 
   >>> from sloot.object import dictobj
   >>> d = dictobj({'a': 'a', 'b': 'b'}, c='c')
-  >>> print d
-  dictobj({'a': 'a', 'c': 'c', 'b': 'b'})
+  >>> print(d)
+  dictobj({'a': 'a', 'b': 'b', 'c': 'c'})
   >>> d.a
   'a'
   >>> d['a']
@@ -25,10 +25,10 @@ Basic usage
   >>> d['a'] = 42
   >>> d.a
   42
-  >>> print d
-  dictobj({'a': 3, 'c': 'c', 'b': 'b'})
-  >>> print dict(d)
-  {'a': 3, 'c': 'c', 'b': 'b'}
+  >>> print(d)
+  dictobj({'a': 42, 'c': 'c', 'b': 'b'})
+  >>> print(dict(d))
+  {'a': 42, 'c': 'c', 'b': 'b'}
 
 
 
