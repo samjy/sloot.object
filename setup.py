@@ -4,6 +4,9 @@
 from setuptools import setup, find_packages
 from sloot.object import __VERSION__
 
+with open("README.rst", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="sloot.object",
     version=__VERSION__,
@@ -17,6 +20,8 @@ setup(
     author="Samuel Jaillet",
     author_email="sam+dev@samjy.com",
     description="Object utils to make life easier",
+    long_description=long_description,
+    long_description_content_type="text/x-rst",
     license="MIT",
     keywords=['tools', 'object', 'utils', 'dict'],
     url="https://github.com/samjy/sloot.object",
