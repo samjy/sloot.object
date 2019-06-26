@@ -10,6 +10,9 @@ try:
     import collections.abc as collections
 except ImportError:
     import collections
+import copy
+import json
+import pickle
 
 
 class TestMyobject(unittest.TestCase):
@@ -120,7 +123,7 @@ class TestDictobj(unittest.TestCase):
         t = dictobj({'a': 'a', 'b': 'b'})
         t.clear()
         self.assertEqual(t._changed_values, {})
-        self.assertEqual(t._deleted_keys, set(['a', 'b']))
+        self.assertEqual(t._deleted_keys, set())
 
     def test___getattribute__(self):
         """Testing __getattribute__
@@ -245,7 +248,6 @@ class TestDictobj(unittest.TestCase):
 
         self.assertEqual(t.__dict__, {
             'test': 'the test',
-            '_dictobj__data': {'a': 'aaa', 'b': 'b', 'c': 'c'},
             '_changed_values': {'a': 'aaa', 'c': 'c'},
             '_deleted_keys': set([]),
             '_initialized': True,
@@ -372,6 +374,44 @@ class TestDictobj(unittest.TestCase):
         assert t.bar == "world"
 
         print(t.__dict__)
+
+    def test_json(self):
+        """Testing dictobj json serialization
+        """
+        data = json.dumps(dictobj(a=1, b=2, c="d"), sort_keys=True)
+        self.assertEqual(data, u'{"a": 1, "b": 2, "c": "d"}')
+
+    def test_pickle(self):
+        """Testing dictobj pickle
+        """
+        d = dictobj({'a': 1, 'b': "c", 'd': dictobj(x="y")})
+        ret = pickle.dumps(d)
+        assert ret
+        d2 = pickle.loads(ret)
+        assert d2 == d
+        assert d2.__dict__ == d.__dict__
+
+    def test_copy(self):
+        """Testing copy
+        """
+        d1 = dictobj({'a': 'a', 'b': 'b'})
+        d2 = d1.copy()
+        assert d1 == d2
+        assert d1 is not d2
+
+        assert copy.copy(d1) == d2
+        assert copy.deepcopy(d1) == d2
+
+        d3 = dictobj(a=1, b="2", c=['a', 'b'], d=object())
+        d4 = d3.copy()
+        assert d4.c is d3.c
+        assert d4.d is d3.d
+        d4 = copy.copy(d3)
+        assert d4.c is d3.c
+        assert d4.d is d3.d
+        d4 = copy.deepcopy(d3)
+        assert d4.c is not d3.c
+        assert d4.d is not d3.d
 
 
 class TestSimpleMultiDict(unittest.TestCase):

@@ -22,7 +22,7 @@ class myobject(object):
             setattr(self, k, v)
 
 
-class dictobj(MutableMapping):
+class dictobj(dict):
     """Dictionary exposing its values over attributes
     """
 
@@ -31,8 +31,6 @@ class dictobj(MutableMapping):
 
         Works like :py:class:`dict`'s initialization
         """
-        self.__data = {}
-
         for arg in args + (kwargs,):
             dic = arg
             if not isinstance(arg, Mapping):
@@ -51,7 +49,7 @@ class dictobj(MutableMapping):
     def __repr__(self):
         """Representing dictobj
         """
-        return "%s(%s)" % (self.__class__.__name__, repr(self.__data))
+        return "%s(%s)" % (self.__class__.__name__, dict.__repr__(self))
 
     def _updated_keys(self, *args, **kwargs):
         """Track keys that get updated
@@ -86,22 +84,56 @@ class dictobj(MutableMapping):
         self._clear_changes_tracking()
         return super(dictobj, self).clear()
 
-    def __getitem__(self, key):
-        return self.__data[key]
-
     def __setitem__(self, key, value):
+        """Setting items the dict way...
+        """
         self._updated_keys({key: value})
-        self.__data[key] = value
+        return super(dictobj, self).__setitem__(key, value)
 
-    def __delitem__(self, key):
-        self._removed_key(key)
-        del self.__data[key]
+    def __delitem__(self, name):
+        """Delete a dict key
+        """
+        self._removed_key(name)
+        return super(dictobj, self).__delitem__(name)
 
-    def __iter__(self):
-        return iter(self.__data)
+    def update(self, *args, **kwargs):
+        """Update the dict
+        """
+        self._updated_keys(*args, **kwargs)
+        return super(dictobj, self).update(*args, **kwargs)
 
-    def __len__(self):
-        return len(self.__data)
+    def setdefault(self, key, default=None):
+        """Set default
+        """
+        willchange = key not in self
+        ret = super(dictobj, self).setdefault(key, default)
+        if willchange:
+            self._updated_keys({key: ret})
+
+        return ret
+
+    def pop(self, key, default=_not_given):
+        """Pop element
+        """
+        if key in self:
+            self._removed_key(key)
+
+        if default is _not_given:
+            return super(dictobj, self).pop(key)
+
+        return super(dictobj, self).pop(key, default)
+
+    def popitem(self):
+        """Popitem
+        """
+        k, v = super(dictobj, self).popitem()
+        self._removed_key(k)
+        return k, v
+
+    def copy(self):
+        """Copy the dictobj
+        """
+        return self.__class__(dict.copy(self))
 
     def __getattribute__(self, name):
         """Get attribute
@@ -114,12 +146,12 @@ class dictobj(MutableMapping):
         :returns: The attribute
         :raises: (AttributeError) If not there
         """
-        dct = object.__getattribute__(self, '__dict__')
-        cls = object.__getattribute__(self, '__class__')
+        dct = dict.__getattribute__(self, '__dict__')
+        cls = dict.__getattribute__(self, '__class__')
         if name in dct or hasattr(cls, name) or '_initialized' not in dct:
             # try to get the standard attribute (method, variable, etc) if it's
             # present on the class or we're not initialized
-            return object.__getattribute__(self, name)
+            return dict.__getattribute__(self, name)
         else:
             # when trying to get an unknown attribute, get it from the dict
             try:
@@ -140,13 +172,13 @@ class dictobj(MutableMapping):
         try:
             if '_initialized' not in self.__dict__:
                 # this test allows attributes to be set in the __init__ method
-                return object.__setattr__(self, item, value)
+                return dict.__setattr__(self, item, value)
             elif item in self.__dict__:
                 # any normal attributes are handled normally
-                return object.__setattr__(self, item, value)
+                return dict.__setattr__(self, item, value)
             elif isinstance(getattr(self.__class__, item, None), property):
                 # this allows properties to behave properly
-                return object.__setattr__(self, item, value)
+                return dict.__setattr__(self, item, value)
         except AttributeError:
             raise AttributeError(u"Can't set attribute '%s' of %r" % (
                 item, self))
@@ -158,7 +190,7 @@ class dictobj(MutableMapping):
         """
         if name in self.__dict__ or hasattr(self.__class__, name):
             # any normal attributes are handled normally
-            return object.__delattr__(self, name)
+            return dict.__delattr__(self, name)
 
         return self.__delitem__(name)
 
