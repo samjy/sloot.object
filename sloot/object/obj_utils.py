@@ -42,93 +42,12 @@ class dictobj(dict):
 
                 self[k] = v
 
-        self._changed_values = {}
-        self._deleted_keys = set()
         self._initialized = True
 
     def __repr__(self):
         """Representing dictobj
         """
         return "%s(%s)" % (self.__class__.__name__, dict.__repr__(self))
-
-    def _updated_keys(self, *args, **kwargs):
-        """Track keys that get updated
-        """
-        # TODO we need to find a way to detect updates when item is a reference
-        # (e.g. a dict or list) and this reference gets updated
-        # TODO maybe it's easier to store a 'checkpoint' and do a dictdiff on
-        # this...
-        if '_initialized' in self.__dict__:
-            changed = {}
-            changed.update(*args, **kwargs)
-            self._changed_values.update(changed)
-            self._deleted_keys -= set(changed.keys())
-
-    def _removed_key(self, key):
-        """Track keys that get removed
-        """
-        if '_initialized' in self.__dict__:
-            self._changed_values.pop(key, None)
-            self._deleted_keys.add(key)
-
-    def _clear_changes_tracking(self):
-        """Clear changes tracking
-        """
-        if '_initialized' in self.__dict__:
-            self._changed_values.clear()
-            self._deleted_keys = set()
-
-    def clear(self):
-        """Clear
-        """
-        self._clear_changes_tracking()
-        return super(dictobj, self).clear()
-
-    def __setitem__(self, key, value):
-        """Setting items the dict way...
-        """
-        self._updated_keys({key: value})
-        return super(dictobj, self).__setitem__(key, value)
-
-    def __delitem__(self, name):
-        """Delete a dict key
-        """
-        self._removed_key(name)
-        return super(dictobj, self).__delitem__(name)
-
-    def update(self, *args, **kwargs):
-        """Update the dict
-        """
-        self._updated_keys(*args, **kwargs)
-        return super(dictobj, self).update(*args, **kwargs)
-
-    def setdefault(self, key, default=None):
-        """Set default
-        """
-        willchange = key not in self
-        ret = super(dictobj, self).setdefault(key, default)
-        if willchange:
-            self._updated_keys({key: ret})
-
-        return ret
-
-    def pop(self, key, default=_not_given):
-        """Pop element
-        """
-        if key in self:
-            self._removed_key(key)
-
-        if default is _not_given:
-            return super(dictobj, self).pop(key)
-
-        return super(dictobj, self).pop(key, default)
-
-    def popitem(self):
-        """Popitem
-        """
-        k, v = super(dictobj, self).popitem()
-        self._removed_key(k)
-        return k, v
 
     def copy(self):
         """Copy the dictobj

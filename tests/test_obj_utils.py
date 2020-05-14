@@ -72,16 +72,14 @@ class TestDictobj(unittest.TestCase):
         """Testing __setitem__
         """
         t = dictobj()
-        self.assertEqual(t._changed_values, {})
 
         t = dictobj({'a': 'a', 'b': 'b', 'c': 'c'})
 
         t.e = 'e'
         t['f'] = 'f'
-        self.assertEqual(t._changed_values, {'e': 'e', 'f': 'f'})
 
         t.f = "new f"
-        self.assertEqual(t._changed_values, {'e': 'e', 'f': "new f"})
+        self.assertEqual(t, {'a': 'a', 'b': 'b', 'c': 'c', 'e': 'e', 'f': "new f"})
 
     def test___delitem___(self):
         """Testing __delitem__
@@ -91,23 +89,21 @@ class TestDictobj(unittest.TestCase):
         # delitem on 'a' key
         del t['a']
         self.assertEqual(t, {'b': 'b'})
-        self.assertEqual(t._deleted_keys, set('a'))
 
         # changed values is updated if needed
         t = dictobj()
         t.a = 'a'
         t.b = 'b'
-        self.assertEqual(t._changed_values, {'a': 'a', 'b': 'b'})
+        self.assertEqual(t, {'a': 'a', 'b': 'b'})
         del t['a']
-        self.assertEqual(t._deleted_keys, set('a'))
-        self.assertEqual(t._changed_values, {'b': 'b'})
+        self.assertTrue('a' not in t)
 
     def test_update(self):
         """Testing update
         """
         t = dictobj()
         t.update({'a': 'a', 'b': 'b', 'c': 'c'})
-        self.assertEqual(t._changed_values, {'a': 'a', 'b': 'b', 'c': 'c'})
+        self.assertEqual(t, {'a': 'a', 'b': 'b', 'c': 'c'})
 
     def test_setdefault(self):
         """Testing setdefault
@@ -115,15 +111,14 @@ class TestDictobj(unittest.TestCase):
         t = dictobj()
         t.setdefault('a', 'a')
         self.assertEqual(t.a, 'a')
-        self.assertEqual(t._changed_values, {'a': 'a'})
+        self.assertEqual(t, {'a': 'a'})
 
     def test_clear(self):
         """Testing clear
         """
         t = dictobj({'a': 'a', 'b': 'b'})
         t.clear()
-        self.assertEqual(t._changed_values, {})
-        self.assertEqual(t._deleted_keys, set())
+        self.assertTrue('a' not in t)
 
     def test___getattribute__(self):
         """Testing __getattribute__
@@ -248,8 +243,6 @@ class TestDictobj(unittest.TestCase):
 
         self.assertEqual(t.__dict__, {
             'test': 'the test',
-            '_changed_values': {'a': 'aaa', 'c': 'c'},
-            '_deleted_keys': set([]),
             '_initialized': True,
         })
 
@@ -309,7 +302,6 @@ class TestDictobj(unittest.TestCase):
         # delitem on 'a' key
         del t.a
         self.assertEqual(t, {'b': 'b'})
-        self.assertEqual(t._deleted_keys, set('a'))
 
         class T(dictobj):
             def __init__(self, *args, **kwargs):
@@ -324,7 +316,6 @@ class TestDictobj(unittest.TestCase):
         del t.test
         self.assertFalse(hasattr(t, 'test'))
         self.assertEqual(t, {})
-        self.assertEqual(t._deleted_keys, set())
 
     def test_globally(self):
         """Testing dictobj
